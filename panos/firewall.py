@@ -144,7 +144,8 @@ class Firewall(PanDevice):
             **kwargs
         )
         # create a class logger
-        self._logger = logging.getLogger(__name__ + "." + self.__class__.__name__)
+        self._logger = logging.getLogger(
+            __name__ + "." + self.__class__.__name__)
 
         self.serial = serial
         self._vsys = vsys
@@ -366,7 +367,8 @@ class Firewall(PanDevice):
         """Delete the vsys on the live device that this Firewall object represents"""
         if self.vsys.startswith("vsys"):
             self.set_config_changed()
-            self.xapi.delete(self._root_xpath_vsys(self.vsys), retry_on_peer=True)
+            self.xapi.delete(self._root_xpath_vsys(
+                self.vsys), retry_on_peer=True)
 
     def refreshall_from_xml(self, xml, refresh_children=False, variables=None):
         if len(xml) == 0:
@@ -412,10 +414,12 @@ class Firewall(PanDevice):
                 if all_vsys:
                     for vsys in all_vsys:
                         firewall_instances.append(
-                            Firewall(serial=entry.get("name"), vsys=vsys.get("name"))
+                            Firewall(serial=entry.get("name"),
+                                     vsys=vsys.get("name"))
                         )
                 else:
-                    firewall_instances.append(Firewall(serial=entry.get("name")))
+                    firewall_instances.append(
+                        Firewall(serial=entry.get("name")))
         return firewall_instances
 
     def show_system_resources(self):
@@ -423,12 +427,12 @@ class Firewall(PanDevice):
         result = self.xapi.xml_root()
         if self._version_info >= (9, 0, 0):
             regex = re.compile(
-                r"load average: ([\d\.]+).*? ([\d\.]+) id,.*KiB Mem :\s+(\d+) total,.*? (\d+) free",
+                r"load average: ([\d\.]+).*? ([\d\.]+) id,.*KiB Mem :\s+(\d+) total,.*? (\d+) free.*? (\d+) used",
                 re.DOTALL,
             )
         else:
             regex = re.compile(
-                r"load average: ([\d.]+).* ([\d.]+)%id.*Mem:.*?([\d.]+)k total.*?([\d]+)k free",
+                r"load average: ([\d.]+).* ([\d.]+)%id.*Mem:.*?([\d.]+)k total.*?([\d]+)k free.*?([\d]+)k used",
                 re.DOTALL,
             )
         match = regex.search(result)
@@ -441,6 +445,7 @@ class Firewall(PanDevice):
                 "cpu": 100 - Decimal(match.group(2)),
                 "mem_total": int(match.group(3)),
                 "mem_free": int(match.group(4)),
+                "mem_used": int(match.group(5))
             }
         else:
             raise err.PanDeviceError(
@@ -480,7 +485,8 @@ class Firewall(PanDevice):
             device.Vsys.refreshall(self, name_only=True)
 
         # Vsys to put objects into.
-        available_vsys = [x for x in self.children if isinstance(x, device.Vsys)]
+        available_vsys = [
+            x for x in self.children if isinstance(x, device.Vsys)]
 
         # Optional: refresh the vsys params.
         if create_vsys_objects or refresh_vsys:
