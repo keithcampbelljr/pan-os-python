@@ -427,12 +427,12 @@ class Firewall(PanDevice):
         result = self.xapi.xml_root()
         if self._version_info >= (9, 0, 0):
             regex = re.compile(
-                r"load average: ([\d\.]+).*? ([\d\.]+) id,.*KiB Mem :\s+(\d+) total,.*? (\d+) free.*? (\d+) used",
+                r"load average: ([\d\.]+).*? ([\d\.]+) id,.*KiB Mem :\s+(\d+) total,.*? (\d+) free.*? (\d+) used,.*? (\d+) buff/cache",
                 re.DOTALL,
             )
         else:
             regex = re.compile(
-                r"load average: ([\d.]+).* ([\d.]+)%id.*Mem:.*?([\d.]+)k total.*?([\d]+)k free.*?([\d]+)k used",
+                r"load average: ([\d.]+).* ([\d.]+)%id.*Mem:.*?([\d.]+)k total.*?([\d]+)k free.*?([\d]+)k used.*?([\d]+)k buff/cache",
                 re.DOTALL,
             )
         match = regex.search(result)
@@ -445,7 +445,8 @@ class Firewall(PanDevice):
                 "cpu": 100 - Decimal(match.group(2)),
                 "mem_total": int(match.group(3)),
                 "mem_free": int(match.group(4)),
-                "mem_used": int(match.group(5))
+                "mem_used": int(match.group(5)),
+                "mem_buffer": int(match.group(6))
             }
         else:
             raise err.PanDeviceError(
